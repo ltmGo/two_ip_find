@@ -35,7 +35,7 @@ func (i *IpService) openIpFile(filePath string) (error, io.Reader) {
 }
 
 //LoadFileToIp 加载ip到内存
-func (i *IpService) LoadFileToIp (r i_qurey.InterfaceRuleIp, filePath string) error {
+func (i *IpService) LoadFileToIp(r i_qurey.InterfaceRuleIp, filePath string) error {
 	err, f := i.openIpFile(filePath)
 	if err != nil {
 		return err
@@ -44,7 +44,7 @@ func (i *IpService) LoadFileToIp (r i_qurey.InterfaceRuleIp, filePath string) er
 	for scanner.Scan() {
 		line := scanner.Text()
 		begin, end, dataByte := r.LoadIpRule(line)
-		if begin > end {
+		if begin > end || begin == 0 || end == 0 {
 			continue
 		}
 		ir := &IpRange{
@@ -62,7 +62,7 @@ func (i *IpService) LoadFileToIp (r i_qurey.InterfaceRuleIp, filePath string) er
 }
 
 //ReLoadFileToIp 重新加载到内存
-func (i *IpService) ReLoadFileToIp (r i_qurey.InterfaceRuleIp, filePath string) error {
+func (i *IpService) ReLoadFileToIp(r i_qurey.InterfaceRuleIp, filePath string) error {
 	i.ipList = make([]*IpRange, 0, 10000)
 	err := i.LoadFileToIp(r, filePath)
 	return err
