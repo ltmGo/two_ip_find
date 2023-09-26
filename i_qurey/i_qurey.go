@@ -1,6 +1,7 @@
 package i_qurey
 
 import (
+	"github.com/ltmGo/two_ip_find/ip_range"
 	"github.com/ltmGo/two_ip_find/untils"
 	"strings"
 )
@@ -10,7 +11,7 @@ const (
 )
 
 type InterfaceRuleIp interface {
-	LoadIpRule(text string) (uint32, uint32, []byte) //加载ip文件到内存中，提供用户，重写方法
+	LoadIpRule(text string) []*ip_range.IpRange //加载ip文件到内存中，提供用户，重写方法
 }
 
 type DefaultRule struct {

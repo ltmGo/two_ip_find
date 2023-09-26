@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"github.com/ltmGo/two_ip_find/i_qurey"
+	"github.com/ltmGo/two_ip_find/ip_range"
 	"github.com/ltmGo/two_ip_find/untils"
 	"io"
 	"os"
@@ -12,20 +13,14 @@ import (
 
 var ErrorIpRangeNotFound = errors.New("ip range not found")
 
-type IpRange struct {
-	Begin uint32
-	End   uint32
-	Data  []byte
-}
-
-//IpService 具体的实现方法
+// IpService 具体的实现方法
 type IpService struct {
-	ipList []*IpRange
+	ipList []*ip_range.IpRange
 }
 
 func MakeIpService() *IpService {
 	return &IpService{
-		ipList: make([]*IpRange, 0, 10000),
+		ipList: make([]*ip_range.IpRange, 0, 10000),
 	}
 }
 
@@ -34,7 +29,7 @@ func (i *IpService) openIpFile(filePath string) (error, io.Reader) {
 	return err, reader
 }
 
-//LoadFileToIp 加载ip到内存
+// LoadFileToIp 加载ip到内存
 func (i *IpService) LoadFileToIp(r i_qurey.InterfaceRuleIp, filePath string) error {
 	err, f := i.openIpFile(filePath)
 	if err != nil {
@@ -43,16 +38,14 @@ func (i *IpService) LoadFileToIp(r i_qurey.InterfaceRuleIp, filePath string) err
 	scanner := bufio.NewScanner(f)
 	for scanner.Scan() {
 		line := scanner.Text()
-		begin, end, dataByte := r.LoadIpRule(line)
-		if begin > end || begin == 0 || end == 0 {
-			continue
+		ir := r.LoadIpRule(line)
+		for _, j := range ir {
+			if j.Begin > j.End || j.Begin == 0 || j.End == 0 {
+				continue
+			} else {
+				i.ipList = append(i.ipList, j)
+			}
 		}
-		ir := &IpRange{
-			Begin: begin,
-			End:   end,
-			Data:  dataByte,
-		}
-		i.ipList = append(i.ipList, ir)
 	}
 	//进行排序
 	sort.Slice(i.ipList, func(k, j int) bool {
@@ -61,15 +54,15 @@ func (i *IpService) LoadFileToIp(r i_qurey.InterfaceRuleIp, filePath string) err
 	return nil
 }
 
-//ReLoadFileToIp 重新加载到内存
+// ReLoadFileToIp 重新加载到内存
 func (i *IpService) ReLoadFileToIp(r i_qurey.InterfaceRuleIp, filePath string) error {
-	i.ipList = make([]*IpRange, 0, 10000)
+	i.ipList = make([]*ip_range.IpRange, 0, 10000)
 	err := i.LoadFileToIp(r, filePath)
 	return err
 }
 
-//FindIp 查找ip
-func (i *IpService) FindIp(ip string) (*IpRange, error) {
+// FindIp 查找ip
+func (i *IpService) FindIp(ip string) (*ip_range.IpRange, error) {
 	ir, err := i.getIpRange(ip)
 	if err != nil {
 		return nil, err
@@ -81,7 +74,7 @@ func (i *IpService) length() int {
 	return len(i.ipList)
 }
 
-func (i *IpService) getIpRange(ip string) (*IpRange, error) {
+func (i *IpService) getIpRange(ip string) (*ip_range.IpRange, error) {
 	var low, high = 0, i.length() - 1
 	ipDt := i.ipList
 	il := untils.IpTwoLong(ip)

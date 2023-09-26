@@ -14,3 +14,10 @@ func IpTwoLong(ip string) uint32 {
 	}
 	return long
 }
+
+// LongToIp 转成 ip
+func LongToIp(long uint32) string {
+	ip := make(net.IP, 4)
+	binary.BigEndian.PutUint32(ip, long)
+	return ip.String()
+}
