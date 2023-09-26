@@ -21,14 +21,16 @@ func MakeDefaultRule() DefaultRule {
 	return DefaultRule{}
 }
 
-func (d DefaultRule) LoadIpRule(line string) (begin uint32, end uint32, data []byte) {
+func (d DefaultRule) LoadIpRule(line string) (list []*ip_range.IpRange) {
 	line = strings.Trim(line, "\t")
 	item := strings.SplitN(line, "\t", ipRangeFieldCount)
+	list = make([]*ip_range.IpRange, 0)
 	if len(item) != ipRangeFieldCount {
 		return
 	}
-	begin = untils.IpTwoLong(item[0])
-	end = untils.IpTwoLong(item[1])
-	data = []byte(strings.ReplaceAll(item[2], "\t", "_"))
+	r := &ip_range.IpRange{}
+	r.Begin = untils.IpTwoLong(item[0])
+	r.End = untils.IpTwoLong(item[1])
+	r.Data = []byte(strings.ReplaceAll(item[2], "\t", "_"))
 	return
 }
