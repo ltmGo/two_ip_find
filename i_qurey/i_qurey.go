@@ -24,7 +24,7 @@ func MakeDefaultRule() DefaultRule {
 func (d DefaultRule) LoadIpRule(line string) (list []*ip_range.IpRange) {
 	line = strings.Trim(line, "\t")
 	item := strings.SplitN(line, "\t", ipRangeFieldCount)
-	list = make([]*ip_range.IpRange, 0)
+	list = make([]*ip_range.IpRange, 0, 1)
 	if len(item) != ipRangeFieldCount {
 		return
 	}
@@ -32,5 +32,6 @@ func (d DefaultRule) LoadIpRule(line string) (list []*ip_range.IpRange) {
 	r.Begin = untils.IpTwoLong(item[0])
 	r.End = untils.IpTwoLong(item[1])
 	r.Data = []byte(strings.ReplaceAll(item[2], "\t", "_"))
+	list = append(list, r)
 	return
 }
