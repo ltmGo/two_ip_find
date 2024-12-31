@@ -30,7 +30,10 @@ func (i *IpService) openIpFile(filePath string) (error, io.Reader) {
 }
 
 // LoadFileToIp 加载ip到内存
-func (i *IpService) LoadFileToIp(r i_qurey.InterfaceRuleIp, filePath []string) error {
+func (i *IpService) LoadFileToIp(r i_qurey.InterfaceRuleIp, filePath ...string) error {
+	if len(filePath) == 0 {
+		return errors.New("file path is empty")
+	}
 	for _, k := range filePath {
 		err, f := i.openIpFile(k)
 		if err != nil {
@@ -57,9 +60,9 @@ func (i *IpService) LoadFileToIp(r i_qurey.InterfaceRuleIp, filePath []string) e
 }
 
 // ReLoadFileToIp 重新加载到内存
-func (i *IpService) ReLoadFileToIp(r i_qurey.InterfaceRuleIp, filePath []string) error {
+func (i *IpService) ReLoadFileToIp(r i_qurey.InterfaceRuleIp, filePath ...string) error {
 	i.ipList = make([]*ip_range.IpRange, 0, 10000)
-	err := i.LoadFileToIp(r, filePath)
+	err := i.LoadFileToIp(r, filePath...)
 	return err
 }
 
