@@ -30,20 +30,22 @@ func (i *IpService) openIpFile(filePath string) (error, io.Reader) {
 }
 
 // LoadFileToIp 加载ip到内存
-func (i *IpService) LoadFileToIp(r i_qurey.InterfaceRuleIp, filePath string) error {
-	err, f := i.openIpFile(filePath)
-	if err != nil {
-		return err
-	}
-	scanner := bufio.NewScanner(f)
-	for scanner.Scan() {
-		line := scanner.Text()
-		ir := r.LoadIpRule(line)
-		for _, j := range ir {
-			if j.Begin > j.End || j.Begin == 0 || j.End == 0 {
-				continue
-			} else {
-				i.ipList = append(i.ipList, j)
+func (i *IpService) LoadFileToIp(r i_qurey.InterfaceRuleIp, filePath []string) error {
+	for _, k := range filePath {
+		err, f := i.openIpFile(k)
+		if err != nil {
+			return err
+		}
+		scanner := bufio.NewScanner(f)
+		for scanner.Scan() {
+			line := scanner.Text()
+			ir := r.LoadIpRule(line)
+			for _, j := range ir {
+				if j.Begin > j.End || j.Begin == 0 || j.End == 0 {
+					continue
+				} else {
+					i.ipList = append(i.ipList, j)
+				}
 			}
 		}
 	}
@@ -55,7 +57,7 @@ func (i *IpService) LoadFileToIp(r i_qurey.InterfaceRuleIp, filePath string) err
 }
 
 // ReLoadFileToIp 重新加载到内存
-func (i *IpService) ReLoadFileToIp(r i_qurey.InterfaceRuleIp, filePath string) error {
+func (i *IpService) ReLoadFileToIp(r i_qurey.InterfaceRuleIp, filePath []string) error {
 	i.ipList = make([]*ip_range.IpRange, 0, 10000)
 	err := i.LoadFileToIp(r, filePath)
 	return err
